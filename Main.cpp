@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <filesystem>
+#include <fstream>
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -37,6 +38,15 @@ void copy_folder(const fs::path& source_folder, const fs::path& destination_fold
 
 int main()
 {
+	std::string filePath = "Msbuild.ov";
+
+	ofstream outFile;
+	outFile.open(filePath, ios::trunc);
+
+	outFile << std::filesystem::current_path().string() + "\\Build\\MSBuild\\Current\\Bin\\Msbuild.exe";
+
+	outFile.close();
+
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
