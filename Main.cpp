@@ -68,7 +68,6 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -84,15 +83,21 @@ int main()
 		
 		
 		ImGui::Begin("Hello 2");
-		ImGui::Text("Hello");
+
+		for (const auto& dir : std::filesystem::directory_iterator("projects")) {
+			if (dir.is_directory()) {
+				if (ImGui::Button(dir.path().filename().string().c_str()))
+				{
+					printf(dir.path().filename().string().c_str());
+				}
+			}
+		}
+
 		if (ImGui::Button("Button"))
 		{
 			printf("Hello0");
 
-			fs::path source_folder = "/path/to/source/folder";
-			fs::path destination_folder = "/path/to/destination/folder";
-
-			copy_folder(source_folder, destination_folder);
+			filesystem::copy("Fold", "er/Fold");
 
 		}
 		ImGui::End();
