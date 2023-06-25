@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <filesystem>
+#include <thread> 
 #include <fstream>
 using namespace std;
 namespace fs = std::filesystem;
@@ -36,9 +37,20 @@ void copy_folder(const fs::path& source_folder, const fs::path& destination_fold
 	}
 }
 
+bool copyFile(const std::string& sourceFile, const std::string& destinationFile) {
+	try {
+		fs::copy_file(sourceFile, destinationFile, fs::copy_options::overwrite_existing);
+		return true;
+	}
+	catch (const fs::filesystem_error& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return false;
+	}
+}
+
 int main()
 {
-	std::string filePath = "Msbuild.ov";
+	std::string filePath = "MsbuildPATH.ov";
 
 	ofstream outFile;
 	outFile.open(filePath, ios::trunc);
@@ -96,13 +108,38 @@ int main()
 
 		for (const auto& dir : std::filesystem::directory_iterator("projects")) {
 			if (dir.is_directory()) {
-				if (ImGui::Button(dir.path().filename().string().c_str()))
-				{
-					printf(dir.path().filename().string().c_str());
+				if (ImGui::Button(dir.path().filename().string().c_str())) {
+					std::string sourcePath = "MsbuildPATH.ov";
+					std::string destinationPath = "projects/" + dir.path().filename().string() + "/MsbuildPATH.ov";
+
+					bool success = copyFile(sourcePath, destinationPath);
+
+					std::string path = dir.path().string() + "\\builder.exe";
+					std::replace(path.begin(), path.end(), '/', '\\');
+
+					std::string currentPath = std::filesystem::current_path().string();
+
+					std::string fullPath = currentPath + "\\" + path;
+
+					std::cout << "Running " << fullPath << std::endl;
+
+					std::string batchDir = dir.path().string();
+					std::replace(batchDir.begin(), batchDir.end(), '/', '\\');
+					std::string cdCommand = "cd /d \"" + batchDir + "\"";
+
+					std::string command = cdCommand + " && " + fullPath;
+
+					std::thread([command]() {
+						std::system(command.c_str());
+						}).detach();
 				}
 			}
 		}
 
+
+
+
+		/*
 		if (ImGui::Button("Button"))
 		{
 			printf("Hello0");
@@ -110,6 +147,7 @@ int main()
 			filesystem::copy("Fold", "er/Fold");
 
 		}
+		*/
 		ImGui::End();
 		
 		
