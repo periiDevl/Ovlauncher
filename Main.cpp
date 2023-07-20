@@ -106,6 +106,16 @@ int main()
 		
 		ImGui::Begin("Hello 2");
 
+		if (ImGui::Button("Create Project")) {
+			filesystem::copy("Assets", "projects/Assets");
+
+			const char* oldName = "projects/Assets";  // Specify the current folder name
+			const char* newName = "projects/Changed";  // Specify the new folder name
+
+			// Rename the folder
+			int result = std::rename(oldName, newName);
+		}
+
 		for (const auto& dir : std::filesystem::directory_iterator("projects")) {
 			if (dir.is_directory()) {
 				if (ImGui::Button(dir.path().filename().string().c_str())) {
