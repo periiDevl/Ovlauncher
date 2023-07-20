@@ -113,16 +113,37 @@ int main()
 		ImGui::InputText("Project Name", Name, IM_ARRAYSIZE(Name));
 
 		if (ImGui::Button("Create Project")) {
-			filesystem::copy("Assets", "projects/Assets");
-
-			const char* oldName = "projects/Assets";
-
+			const char* oldName = "psc";
 			std::string newName = "projects/";
 			newName += Name;
 
-			int result = std::rename(oldName, newName.c_str());
-		}
+			std::filesystem::create_directory("projects");
 
+			std::error_code ec;
+			std::filesystem::copy(oldName, newName, std::filesystem::copy_options::recursive, ec);
+
+			if (ec) {
+				char errorMessage[256];
+				if (strerror_s(errorMessage, sizeof(errorMessage), ec.value()) == 0) {
+					std::cout << "Error copying folder: " << errorMessage << std::endl;
+				}
+				else {
+					std::cout << "Error copying folder: Unknown error" << std::endl;
+				}
+			}
+			else {
+				int result = std::rename(newName.c_str(), newName.c_str());
+				if (result != 0) {
+					char errorMessage[256];
+					if (strerror_s(errorMessage, sizeof(errorMessage), errno) == 0) {
+						std::cout << "Error renaming folder: " << errorMessage << std::endl;
+					}
+					else {
+						std::cout << "Error renaming folder: Unknown error" << std::endl;
+					}
+				}
+			}
+		}
 		ImGui::Separator();
 
 		for (const auto& dir : std::filesystem::directory_iterator("projects")) {
