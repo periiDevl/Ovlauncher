@@ -13,6 +13,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+
 void copy_folder(const fs::path& source_folder, const fs::path& destination_folder) {
 	if (!fs::exists(source_folder)) {
 		cout << "Source folder does not exist." << endl;
@@ -104,17 +105,25 @@ int main()
 
 		
 		
-		ImGui::Begin("Hello 2");
+		ImGui::Begin("Your Projects");
+
+
+		static char Name[128] = "";
+
+		ImGui::InputText("Project Name", Name, IM_ARRAYSIZE(Name));
 
 		if (ImGui::Button("Create Project")) {
 			filesystem::copy("Assets", "projects/Assets");
 
-			const char* oldName = "projects/Assets";  // Specify the current folder name
-			const char* newName = "projects/Changed";  // Specify the new folder name
+			const char* oldName = "projects/Assets";
 
-			// Rename the folder
-			int result = std::rename(oldName, newName);
+			std::string newName = "projects/";
+			newName += Name;
+
+			int result = std::rename(oldName, newName.c_str());
 		}
+
+		ImGui::Separator();
 
 		for (const auto& dir : std::filesystem::directory_iterator("projects")) {
 			if (dir.is_directory()) {
@@ -142,6 +151,7 @@ int main()
 					std::thread([command]() {
 						std::system(command.c_str());
 						}).detach();
+
 				}
 			}
 		}
