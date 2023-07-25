@@ -17,34 +17,31 @@ void DefaultTheme()
 {
 	ImGuiStyle& style = ImGui::GetStyle();
 
-	style.WindowTitleAlign = ImVec2(0.5, 0.5);
-	style.WindowPadding = ImVec2(15, 15);
-	style.WindowPadding = ImVec2(8.00f, 8.00f);
-	style.FramePadding = ImVec2(5.00f, 2.00f);
-	style.CellPadding = ImVec2(6.00f, 6.00f);
-	style.ItemSpacing = ImVec2(6.00f, 6.00f);
-	style.ItemInnerSpacing = ImVec2(6.00f, 6.00f);
-	style.TouchExtraPadding = ImVec2(0.00f, 0.00f);
-	style.IndentSpacing = 25;
-	style.ScrollbarSize = 15;
-	style.GrabMinSize = 10;
-	style.WindowBorderSize = 1.5;
-	style.ChildBorderSize = 1;
-	style.PopupBorderSize = 1;
-	style.FrameBorderSize = 1;
-	style.TabBorderSize = 1;
-	style.WindowRounding = 4;
-	style.ChildRounding = 4;
-	style.FrameRounding = 3;
-	style.PopupRounding = 4;
-	style.ScrollbarRounding = 9;
-	style.GrabRounding = 3;
-	style.LogSliderDeadzone = 4;
-	style.TabRounding = 4;
+
+	style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
+	style.WindowPadding = ImVec2(15.0f, 15.0f);
+	style.FramePadding = ImVec2(8.0f, 4.0f);
+	style.ItemSpacing = ImVec2(8.0f, 6.0f);
+	style.ItemInnerSpacing = ImVec2(6.0f, 6.0f);
+	style.IndentSpacing = 20.0f;
+	style.ScrollbarSize = 15.0f;
+	style.GrabMinSize = 10.0f;
+	style.WindowBorderSize = 1.0f;
+	style.ChildBorderSize = 1.0f;
+	style.PopupBorderSize = 1.0f;
+	style.FrameBorderSize = 1.0f;
+	style.TabBorderSize = 1.0f;
+	style.WindowRounding = 4.0f;
+	style.ChildRounding = 4.0f;
+	style.FrameRounding = 3.0f;
+	style.PopupRounding = 4.0f;
+	style.ScrollbarRounding = 9.0f;
+	style.GrabRounding = 3.0f;
+	style.TabRounding = 4.0f;
 
 	style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.13f - 0.033, 0.14f - 0.033, 0.15f - 0.033, 1.00f);
 	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
 	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
 	style.Colors[ImGuiCol_Border] = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
@@ -163,7 +160,7 @@ int main()
 
 
 	
-
+	bool frcrte = false;
 
 
 	IMGUI_CHECKVERSION();
@@ -183,10 +180,10 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		
 
-		
-		
+
+
+
 		ImGui::Begin("Your Projects");
 
 
@@ -194,40 +191,54 @@ int main()
 
 		ImGui::InputText("Project Name", Name, IM_ARRAYSIZE(Name));
 
+		std::string namenew = Name;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha);
+		if (namenew.empty() || namenew.find(' ') != std::string::npos)
+		{
+			frcrte = false;
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+		}
+		else {
+			frcrte = true;
+		}
+
 		if (ImGui::Button("Create Project")) {
-			const char* oldName = "psc";
-			std::string newName = "projects/";
-			newName += Name;
+			if (frcrte) {
+				const char* oldName = "psc";
+				std::string newName = "projects/";
+				newName += Name;
 
-			std::filesystem::create_directory("projects");
+				std::filesystem::create_directory("projects");
 
-			std::error_code ec;
-			std::filesystem::copy(oldName, newName, std::filesystem::copy_options::recursive, ec);
+				std::error_code ec;
+				std::filesystem::copy(oldName, newName, std::filesystem::copy_options::recursive, ec);
 
-			if (ec) {
-				char errorMessage[256];
-				if (strerror_s(errorMessage, sizeof(errorMessage), ec.value()) == 0) {
-					std::cout << "Error copying folder: " << errorMessage << std::endl;
-				}
-				else {
-					std::cout << "Error copying folder: Unknown error" << std::endl;
-				}
-			}
-			else {
-				int result = std::rename(newName.c_str(), newName.c_str());
-				if (result != 0) {
+				if (ec) {
 					char errorMessage[256];
-					if (strerror_s(errorMessage, sizeof(errorMessage), errno) == 0) {
-						std::cout << "Error renaming folder: " << errorMessage << std::endl;
+					if (strerror_s(errorMessage, sizeof(errorMessage), ec.value()) == 0) {
+						std::cout << "Error copying folder: " << errorMessage << std::endl;
 					}
 					else {
-						std::cout << "Error renaming folder: Unknown error" << std::endl;
+						std::cout << "Error copying folder: Unknown error" << std::endl;
+					}
+				}
+				else {
+					int result = std::rename(newName.c_str(), newName.c_str());
+					if (result != 0) {
+						char errorMessage[256];
+						if (strerror_s(errorMessage, sizeof(errorMessage), errno) == 0) {
+							std::cout << "Error renaming folder: " << errorMessage << std::endl;
+						}
+						else {
+							std::cout << "Error renaming folder: Unknown error" << std::endl;
+						}
 					}
 				}
 			}
 		}
+		ImGui::PopStyleVar();
 		ImGui::Separator();
-
 		for (const auto& dir : std::filesystem::directory_iterator("projects")) {
 			if (dir.is_directory()) {
 				if (ImGui::Button(dir.path().filename().string().c_str())) {
@@ -255,6 +266,15 @@ int main()
 						std::system(command.c_str());
 						}).detach();
 
+				}
+
+				if (ImGui::IsItemHovered())
+				{
+					//printf("Hoved");
+				}
+				else
+				{
+					//printf("Not Hoved");
 				}
 			}
 		}
